@@ -7,7 +7,7 @@
                 "C:/Program Files/MySQL/MySQL Server 8.0/include",
                 "C:/Program Files/MySQL/MySQL Server 8.0/lib",
                 "C:/vcpkg/installed/x64-windows/include",
-                "${workspaceFolder}/source/header"
+                "${workspaceFolder}/cpp/source/header"
             ],
             "defines": [
                 "_DEBUG",
@@ -16,8 +16,8 @@
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "C:/mingw/bin/g++.exe",
-            "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cStandard": "c17",
+            "cppStandard": "c++17",  // 改为 c++17
             "intelliSenseMode": "windows-gcc-x64"
         }
     ],
