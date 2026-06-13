@@ -1,0 +1,11 @@
+﻿# IDE 配置
+.vscode/
+
+# C++ 构建输出
+cpp/build/
+
+# Vue 构建产物
+vue/dist/
+vue/node_modules/
+
+# 如果有其他构建产物，也可以加在这里
