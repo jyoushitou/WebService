@@ -1,6 +1,9 @@
-/* ============================================================
-   全局样式
-   ============================================================ */
+/**
+ * main.css — 全局样式
+ * 
+ * 定义全局 CSS 重置、通用颜色、字体、滚动条样式，
+ * 以及 fade/slide 过渡动画和弹窗（Overlay + Modal）通用样式。
+ */
 
 *,
 *::before,
@@ -76,7 +79,7 @@ img {
   color: white;
 }
 
-/* 过渡动画 */
+/* 淡入淡出过渡 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -87,6 +90,7 @@ img {
   opacity: 0;
 }
 
+/* 滑动过渡 */
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease, opacity 0.3s ease;
@@ -103,7 +107,7 @@ img {
 }
 
 /* ================================================================
-   弹窗通用样式（来自 common.css）
+   弹窗通用样式
    ================================================================ */
 .overlay {
   display: none;

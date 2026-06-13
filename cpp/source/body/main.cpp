@@ -1,3 +1,8 @@
+// ============================================================
+// main.cpp — 程序入口点
+// 功能：初始化 MySQL、启动 HTTP 服务器、保持主进程存活
+// ============================================================
+
 #include <iostream>
 #include <string>
 #include <atomic>
@@ -5,57 +10,70 @@
 #include <chrono>
 
 #ifdef _WIN32
-// winsock2.h 必须在 windows.h 之前包含
+// ⚠️ Win32 注意事项：winsock2.h 必须在 windows.h 之前包含！
 #include <winsock2.h>
 #include <windows.h>
 #endif
 
-#include "Tools.h"
-#include "MyMySQL.h"
-#include "https_api.h"
+#include "Tools.h"          // 工具库
+#include "MyMySQL.h"        // MySQL 封装
+#include "https_api.h"      // HTTP 服务器
 
-// 声明全局变量（extern，不定义）
-extern Http::http_server* g_server;   // 全局 HTTP 服务器指针，在 FrameWork.cpp 中定义
-extern std::atomic<bool> g_running;  // 全局原子性运行状态标志，在 FrameWork.cpp 中定义
+// ===== extern 声明 =====
+// 告诉编译器这些变量/函数在别的 .cpp 文件中定义（FrameWork.cpp）
+// extern 只声明不定义，链接时由链接器寻找实际定义
+extern Http::http_server* g_server;         // 全局 HTTP 服务器指针
+extern std::atomic<bool> g_running;         // 全局运行状态标志（原子类型，线程安全）
 
-// 声明外部函数
-extern void Initiave_Http(int Port);                                          // 初始化并启动 HTTP 服务器（定义在 FrameWork.cpp）
-extern MySQL::mysql* Initiave_MySQL();                                        // 初始化 MySQL 数据库连接（定义在 FrameWork.cpp）
+extern void Initiave_Http(int Port);        // 初始化并启动 HTTP 服务器
+extern MySQL::mysql* Initiave_MySQL();      // 初始化 MySQL 数据库连接
 
-
+// ============================================================
+// main — 程序入口
+//
+// 整个程序的启动顺序：
+// 1. 设置控制台 UTF-8 编码
+// 2. 初始化 MySQL 数据库连接
+// 3. 启动 HTTP 服务器（放在子进程/子线程中）
+// 4. 主进程进入休眠循环等待
+// 5. 服务器停止后执行收尾清理
+// ============================================================
 int main(){
-    // 设置控制台编码为 UTF-8，解决中文乱码问题
+    // ===== 1. 设置控制台编码 =====
 #ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);            // Windows 下将控制台输出代码页设为 UTF-8，确保中文正常显示
+    // Windows 控制台默认代码页是 GBK，设置成 UTF-8 以正确输出中文
+    SetConsoleOutputCP(CP_UTF8);
 #endif
-    Tools::Out_System("Web_Server启动");    // 输出系统启动日志信息
-    
-        // 初始化 MySQL
-    MySQL::mysql* web_db = Initiave_MySQL();    // 创建 MySQL 数据库连接对象，若失败返回 nullptr
-    
-    // 启动 HTTP 服务器（子进程/子线程中运行，不阻塞主进程）
+    Tools::Out_System("Web_Server启动");    // 打印启动日志
+
+    // ===== 2. 初始化 MySQL =====
+    MySQL::mysql* web_db = Initiave_MySQL();
+
+    // ===== 3. 启动 HTTP 服务器 =====
+    // 端口 60906 — 服务器会在子进程/子线程中运行，不阻塞主进程
     Initiave_Http(60906);
-    
-    // 主进程保持存活，等待程序结束
+
+    // ===== 4. 主进程保持存活 =====
+    // HTTP 服务器在子进程/子线程运行，主进程不能直接退出
+    // 通过 while(g_running) 循环保持进程存活
     Tools::Out_System("主进程正在运行，HTTP 服务器在子进程中运行...");
-    
-    // 循环保持主进程存活，直到收到退出信号
+
     while (g_running) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    
-    // 下面的代码在服务器停止后才会执行
-    if (web_db) {                           // 检查数据库连接是否成功建立
-        std::string name, password;         // 用于接收 User() 方法返回的用户名和密码
-        if(web_db->User(name, password)){   // 调用数据库用户验证（具体逻辑取决于 User() 的实现）
-            return 0;                       // 验证成功，程序正常退出
+
+    // ===== 5. 服务器停止后的收尾 =====
+    if (web_db) {
+        std::string name, password;
+        if(web_db->User(name, password)){   // 注意：此处传空字符串调用 User() 可能有问题
+            return 0;
         }
         else{
-            delete web_db;                  // 释放数据库连接对象
-            return 1;                       // 验证失败，程序以非零值退出
+            delete web_db;
+            return 1;
         }
     }
-    
-    delete web_db;  // 释放数据库连接（delete nullptr 是安全的，不会报错）
-    return 0;       // 程序正常结束
+
+    delete web_db;  // delete nullptr 是安全的，C++ 标准保证
+    return 0;
 }

@@ -1,3 +1,11 @@
+/**
+ * ArticleView.vue — 文章阅读页面
+ * 
+ * 从后端 /api/article 接口获取文章内容，按章节展示。
+ * 支持侧边栏章节导航、上一篇/下一篇翻页、移动端下拉章节选择。
+ * 页面加载时有入场动画，背景随机选择一张图片。
+ */
+
 <script setup>
 import { ref, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'

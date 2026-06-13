@@ -1,3 +1,11 @@
+/**
+ * HomeView.vue — 首页
+ * 
+ * 展示四个板块（文章/图片/视频/博客），每个板块包含三个标签和若干图片。
+ * 页面加载时显示开屏动画，内容逐渐弹出，并且支持滚动时的入场/退场动画。
+ * 登录/注册弹窗集成在首页中。
+ */
+
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'

@@ -1,12 +1,22 @@
+// ============================================================
+// https_api.h — HTTP 服务器核心头文件
+// 功能：定义 HTTP 请求/响应结构体、HTTP服务器类、路由注册接口
+// ============================================================
+
 #ifndef HTTPS_API_H
 #define HTTPS_API_H
 
+// ===== 跨平台 Socket 头文件 =====
+// Windows 使用 Winsock2 库，Linux 使用 POSIX Socket API
+// 通过条件编译（#ifdef _WIN32）实现跨平台兼容
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    #pragma comment(lib, "ws2_32.lib")
+    #include <winsock2.h>   // Winsock2 核心头文件
+    #include <ws2tcpip.h>   // Winsock2 TCP/IP 扩展
+    #include <windows.h>    // Windows API
+    #pragma comment(lib, "ws2_32.lib")  // 链接 Winsock 库
+    // 统一 API 名称：Windows 下 close → closesocket
     #define close closesocket
+    // 统一读写接口：封装 recv → read, send → write
     inline int read(SOCKET fd, char* buf, int count) {
         return recv(fd, buf, count, 0);
     }
@@ -14,11 +24,12 @@
         return send(fd, buf, count, 0);
     }
 #else
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <unistd.h>
-    #include <arpa/inet.h>
-    using SOCKET = int;
+    // Linux/POSIX 标准头文件
+    #include <sys/socket.h>     // socket, bind, listen, accept 等
+    #include <netinet/in.h>     // sockaddr_in 结构体
+    #include <unistd.h>         // close, read, write
+    #include <arpa/inet.h>      // inet_ntoa 等
+    using SOCKET = int;         // 统一类型名
 #endif
 
 #include <fstream>

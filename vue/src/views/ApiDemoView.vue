@@ -1,3 +1,10 @@
+/**
+ * ApiDemoView.vue — API 接口演示页面
+ * 
+ * 提供标签页形式切换各 API 接口，包含表单输入和响应展示。
+ * 集成了登录/退出、GET/POST/PUT/DELETE 五种接口测试。
+ */
+
 <script setup>
 import { useApiStore } from '@/stores/api'
 import { ref } from 'vue'

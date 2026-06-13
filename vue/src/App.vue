@@ -1,3 +1,12 @@
+/**
+ * App.vue — Vue 3 根组件
+ * 
+ * 根据路由判断是否使用全屏布局。
+ * 首页（/）和文章页（/article）使用全屏布局（无公共导航栏），
+ * 其他页面使用标准布局：顶部导航栏 + 内容区 + 页脚。
+ * 挂载时初始化和恢复登录状态，并检测服务器连通性。
+ */
+
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useApiStore } from '@/stores/api'
@@ -23,9 +32,11 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!-- 全屏页面：首页和文章页不使用公共导航栏 -->
   <template v-if="isFullPage">
     <RouterView />
   </template>
+  <!-- 标准页面：带导航栏和页脚 -->
   <template v-else>
     <div class="app-container">
       <header class="app-header">

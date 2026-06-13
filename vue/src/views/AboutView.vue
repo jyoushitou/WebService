@@ -1,3 +1,9 @@
+/**
+ * AboutView.vue — 关于页面
+ * 
+ * 展示项目的简介、技术栈、启动方式和 API 接口文档。
+ */
+
 <script setup>
 </script>
 
