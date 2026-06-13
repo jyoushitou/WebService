@@ -8,4 +8,7 @@ cpp/build/
 vue/dist/
 vue/node_modules/
 
+# html源码
+html_Src
+
 # 如果有其他构建产物，也可以加在这里
