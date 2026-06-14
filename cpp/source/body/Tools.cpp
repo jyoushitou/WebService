@@ -21,7 +21,11 @@ namespace Tools{
     }
 
     void Out_System_Error(std::string str){
-        std::cerr << "[error]" << str << std::endl;          // 错误信息：std::cerr（不缓冲，立即输出）
+        std::cerr << "[error]" << str << std::endl;         // 错误信息：std::cerr（不缓冲，立即输出）
+    }
+
+    void Out_System_exit(std::string str){
+        std::cout << "[exit]" << str <<std::endl;           // 退出日志
     }
 
     // ===== 控制台输入 =====

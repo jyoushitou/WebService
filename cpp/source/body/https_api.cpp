@@ -110,7 +110,7 @@ namespace Http {
     // 将 FrameWork.cpp::HttpServerRoutine 中的 lambda 路由集中到此
     // 需要在 HttpServerRoutine 创建 server 后调用
     // ============================================================
-    void http_server::RegisterBusinessRoutes() {
+            void http_server::RegisterBusinessRoutes() {
         // ===== GET /api/hello =====
         Get("/api/hello", [this](const HttpRequest& req) -> HttpResponse {
             HttpResponse res;
@@ -126,6 +126,86 @@ namespace Http {
                            getpid()
         #endif
                        ) + "}";
+            return res;
+        });
+
+        // ===== GET /api/contents =====
+        Get("/api/contents", [this](const HttpRequest& req) -> HttpResponse {
+            HttpResponse res;
+            res.status_code = 200;
+            res.status_text = "OK";
+            res.headers["Content-Type"] = "application/json";
+            res.headers["Access-Control-Allow-Origin"] = "*";
+
+            std::string json = "{";
+            json += "\"code\": 200, ";
+            json += "\"message\": \"success\", ";
+            json += "\"data\": [";
+
+            std::vector<std::string> sectionTitles = {"文章", "图片", "视频", "博客"};
+            std::vector<std::vector<std::pair<std::string, std::vector<std::string>>>> sectionData;
+
+            for (int s = 0; s < 4; s++) {
+                std::vector<std::pair<std::string, std::vector<std::string>>> rows;
+                for (int r = 0; r < 3; r++) {
+                    std::string label = "标签" + std::to_string(r + 1);
+                    std::vector<std::string> imgs;
+                    int imgCount = 6 - r;
+                    for (int i = 0; i < imgCount; i++) {
+                        imgs.push_back("/image/" + std::to_string(s) + "_" + std::to_string(r) + "_" + std::to_string(i) + ".jpg");
+                    }
+                    rows.push_back({label, imgs});
+                }
+                sectionData.push_back(rows);
+            }
+
+            for (int s = 0; s < (int)sectionData.size(); s++) {
+                if (s > 0) json += ",";
+                json += "{";
+                json += "\"title\":\"" + sectionTitles[s] + "\",";
+                json += "\"rows\":[";
+                for (int r = 0; r < (int)sectionData[s].size(); r++) {
+                    if (r > 0) json += ",";
+                    json += "{";
+                    json += "\"label\":\"" + sectionData[s][r].first + "\",";
+                    json += "\"imgs\":[";
+                    for (int i = 0; i < (int)sectionData[s][r].second.size(); i++) {
+                        if (i > 0) json += ",";
+                        json += "\"" + sectionData[s][r].second[i] + "\"";
+                    }
+                    json += "]";
+                    json += "}";
+                }
+                json += "]";
+                json += "}";
+            }
+
+            json += "]}";
+            res.body = json;
+            return res;
+        });
+
+        // ===== GET /api/article =====
+        Get("/api/article", [this](const HttpRequest& req) -> HttpResponse {
+            HttpResponse res;
+            res.status_code = 200;
+            res.status_text = "OK";
+            res.headers["Content-Type"] = "application/json";
+            res.headers["Access-Control-Allow-Origin"] = "*";
+
+            std::string json = "{";
+            json += "\"code\": 200, ";
+            json += "\"message\": \"success\", ";
+            json += "\"data\": {";
+            json += "\"title\": \"文章名\",";
+            json += "\"chapters\": [";
+            json += "{\"name\":\"第一章 开篇\",\"content\":\"清晨的微光透过窗棂洒落，轻轻拂过桌面，为平凡的一日拉开序幕。\"},";
+            json += "{\"name\":\"第二章 内容一\",\"content\":\"行走在世间，我们会遇见形形色色的人，经历大大小小的事。\"},";
+            json += "{\"name\":\"第三章 内容二\",\"content\":\"我们在成长中学会接纳，在挫折中变得坚强，在陪伴中懂得珍惜。\"},";
+            json += "{\"name\":\"第四章 结尾\",\"content\":\"时光缓缓流淌，带走稚嫩，沉淀阅历，让原本懵懂的内心慢慢变得丰盈而笃定。\"}";
+            json += "]";
+            json += "}}";
+            res.body = json;
             return res;
         });
     }
