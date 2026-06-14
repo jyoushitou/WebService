@@ -7,20 +7,14 @@
  */
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import UserNav from '@/components/UserNav.vue'
 
 const router = useRouter()
 const route = useRoute()
 
 const bgImage = ref('')
-
-const isLogin = ref(true)
-const showAuth = ref(false)
-const authTitle = ref('登 录')
-const authSubmitText = ref('登 录')
-const toggleText = ref('还没有账号？<span>立即注册</span>')
-const showPass2 = ref(false)
 
 const navOpen = ref(false)
 const menuBtnDisplay = ref('inline-flex')
@@ -46,37 +40,8 @@ function toggleChapter() {
 }
 
 function navTo(path) {
-  closeNav()
+    closeNav()
   router.push(path)
-}
-
-function openAuth(mode) {
-  isLogin.value = mode === 'login'
-  authTitle.value = isLogin.value ? '登 录' : '注 册'
-  authSubmitText.value = isLogin.value ? '登 录' : '注 册'
-  toggleText.value = isLogin.value
-    ? '还没有账号？<span>立即注册</span>'
-    : '已有账号？<span>去登录</span>'
-  showPass2.value = !isLogin.value
-  showAuth.value = true
-}
-function closeAuth() { showAuth.value = false }
-function toggleAuthMode() { openAuth(isLogin.value ? 'register' : 'login') }
-function handleOverlayClick(e) {
-  if (e.target === e.currentTarget) closeAuth()
-}
-function handleSubmit() {
-  const user = document.getElementById('authUser').value
-  const pass = document.getElementById('authPass').value
-  if (!user || !pass) { alert('请填写完整信息'); return }
-  if (!isLogin.value) {
-    const pass2 = document.getElementById('authPass2').value
-    if (pass !== pass2) { alert('两次密码不一致'); return }
-    alert('注册成功！')
-  } else {
-    alert('登录成功！')
-  }
-  closeAuth()
 }
 
 // ===== 文章数据（保底数据） =====
@@ -169,10 +134,9 @@ onMounted(async () => {
       <header class="header">
         <button class="menu-btn" id="menuBtn" :style="{ display: menuBtnDisplay }" @click="toggleNav">☰</button>
         <h1 class="page-title">{{ articleTitle }}</h1>
-        <div class="header-right" id="headerRight" :style="{ display: headerRightDisplay }">
-          <button class="auth-btn" @click="openAuth('login')">登 录</button>
-          <button class="auth-btn" @click="openAuth('register')">注 册</button>
-        </div>
+                <div class="header-right" id="headerRight" :style="{ display: headerRightDisplay }">
+                  <UserNav />
+                </div>
         <div class="nav-dropdown" id="navDropdown" :class="{ show: navOpen }">
           <div class="nav-box" @click="navTo('/')">主页</div>
           <div class="nav-box" @click="navTo('/article')">文章</div>
@@ -221,19 +185,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="overlay" id="authOverlay" :class="{ show: showAuth }" @click="handleOverlayClick">
-      <div class="modal">
-        <button class="close-btn" id="closeAuthBtn" @click="closeAuth">✕</button>
-        <h2 id="authTitle">{{ authTitle }}</h2>
-        <input type="text" id="authUser" placeholder="用户名" />
-        <input type="password" id="authPass" placeholder="密码" />
-        <input type="password" id="authPass2" placeholder="确认密码" :style="{ display: showPass2 ? 'block' : 'none' }" />
-        <button class="submit-btn" id="authSubmit" @click="handleSubmit">{{ authSubmitText }}</button>
-        <div class="toggle-auth" id="toggleAuth" @click="toggleAuthMode" v-html="toggleText"></div>
-      </div>
-    </div>
+        </div>
   </div>
 </template>
 
@@ -405,7 +357,7 @@ onMounted(async () => {
     color: rgba(255,255,255,0.95);
 }
 
-.article-body .chapter-list h3 {
+.article-body .chapter-lst h3 {
     margin-bottom: 14px;
     border-bottom: 1px solid rgba(255,255,255,0.3);
     padding-bottom: 8px;
@@ -475,53 +427,6 @@ onMounted(async () => {
 .article-body .mobile-chapter-wrap { display: none; }
 .article-body .mobile-prev,
 .article-body .mobile-next { display: none; }
-
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-}
-.overlay.show { display: flex; }
-.modal {
-    background: #fff;
-    border: 2px solid #000;
-    border-radius: 16px;
-    padding: 40px 50px;
-    position: relative;
-    min-width: 320px;
-    text-align: center;
-}
-.modal .close-btn {
-    position: absolute;
-    top: 12px; right: 16px;
-    border: none; background: none;
-    font-size: 24px; cursor: pointer;
-    color: #999;
-}
-.modal .close-btn:hover { color: #000; }
-.modal h2 { margin-bottom: 20px; font-size: 1.8rem; color: #000; }
-.modal input {
-    display: block; width: 100%;
-    padding: 10px 14px; margin: 12px 0;
-    border: 2px solid #000; border-radius: 8px;
-    font-size: 1rem; outline: none;
-}
-.modal input:focus { border-color: #666; }
-.modal .submit-btn {
-    width: 100%; padding: 10px; margin-top: 10px;
-    border: 2px solid #000; border-radius: 8px;
-    background: #000; color: #fff;
-    font-size: 1.1rem; cursor: pointer;
-    transition: background 0.2s;
-}
-.modal .submit-btn:hover { background: #333; }
-.modal .toggle-auth { margin-top: 14px; font-size: 0.95rem; color: #666; cursor: pointer; }
-.modal .toggle-auth span { color: #0066cc; text-decoration: underline; }
 
 .article-body .main-content {
     display: none;

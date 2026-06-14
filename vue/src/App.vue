@@ -9,8 +9,9 @@
 
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import { useApiStore } from '@/stores/api'
 import { ref, onMounted, computed } from 'vue'
+import UserNav from '@/components/UserNav.vue'
+import { useApiStore } from '@/stores/api'
 
 const apiStore = useApiStore()
 const serverStatus = ref('checking...')
@@ -45,12 +46,14 @@ onMounted(async () => {
             <h1>Native Socket Server</h1>
             <span class="subtitle">C++ 后端 · Vue 3 前端</span>
           </div>
-          <div class="server-status">
+                    <div class="server-status">
             <span class="status-label">服务器状态：</span>
             <span :class="['status-indicator', serverStatus.includes('在线') ? 'online' : 'offline']">
               {{ serverStatus }}
             </span>
           </div>
+                    <!-- 用户信息区 -->
+          <UserNav />
         </div>
         <nav class="nav-bar">
           <RouterLink to="/" class="nav-link" active-class="active">首页</RouterLink>
