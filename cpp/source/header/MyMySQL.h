@@ -35,9 +35,10 @@ namespace MySQL{
         bool Create_DataBases();                             // 创建/验证当前默认数据库
         bool Create_DataBases(std::string);                  // 创建/验证指定数据库并设为默认
 
-        // 用户鉴权
-        int User(std::string, std::string);                  // 用户名+密码鉴权，返回权限级别（0=无权限，>0=有权限）
+                // 用户鉴权
+        int User(std::string, std::string, std::string* userAvatar = nullptr);  // 用户名+密码鉴权，返回权限级别（0=无权限，>0=有权限），可选输出头像
         int Get_UserId(std::string);                         // 根据用户名查询用户 ID
+        std::string Get_Avatar(std::string);                 // 根据用户名查询用户头像
 
         ~mysql();                                            // 析构时自动关闭连接
 

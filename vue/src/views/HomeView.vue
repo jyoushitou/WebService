@@ -7,10 +7,12 @@
  */
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useApiStore } from '@/stores/api'
 
 const router = useRouter()
+const apiStore = useApiStore()
 
 function goToArticle() {
   router.push('/article')
@@ -23,8 +25,11 @@ const authTitle = ref('登 录')
 const authSubmitText = ref('登 录')
 const toggleText = ref('还没有账号？<span>立即注册</span>')
 const showPass2 = ref(false)
+const authError = ref('')
+const authLoading = ref(false)
 
 function openAuth(mode) {
+  authError.value = ''
   isLogin.value = mode === 'login'
   authTitle.value = isLogin.value ? '登 录' : '注 册'
   authSubmitText.value = isLogin.value ? '登 录' : '注 册'
@@ -39,18 +44,61 @@ function toggleAuthMode() { openAuth(isLogin.value ? 'register' : 'login') }
 function handleOverlayClick(e) {
   if (e.target === e.currentTarget) closeAuth()
 }
-function handleSubmit() {
+
+function handleLogout() {
+  apiStore.logout()
+}
+
+async function handleSubmit() {
   const user = document.getElementById('authUser').value
   const pass = document.getElementById('authPass').value
-  if (!user || !pass) { alert('请填写完整信息'); return }
-  if (!isLogin.value) {
-    const pass2 = document.getElementById('authPass2').value
-    if (pass !== pass2) { alert('两次密码不一致'); return }
-    alert('注册成功！')
-  } else {
-    alert('登录成功！')
+
+  if (!user || !pass) {
+    authError.value = '请填写完整信息'
+    return
   }
-  closeAuth()
+
+  authLoading.value = true
+  authError.value = ''
+
+    if (!isLogin.value) {
+    const pass2 = document.getElementById('authPass2').value
+    if (pass !== pass2) {
+      authError.value = '两次密码不一致'
+      authLoading.value = false
+      return
+    }
+    // 注册请求
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: user, password: pass })
+      })
+      const data = await response.json()
+      if (data.status === 'success') {
+        alert('注册成功！请登录')
+        openAuth('login')
+      } else {
+        authError.value = data.message || '注册失败'
+      }
+    } catch (err) {
+      authError.value = '注册失败：后端未开放注册接口，请直接登录'
+    }
+  } else {
+    // 登录请求：调用 apiStore 的后端登录
+    try {
+      const data = await apiStore.login({ name: user, password: pass })
+      if (data.status === 'success') {
+        closeAuth()
+      } else {
+        authError.value = data.message || '登录失败'
+      }
+    } catch (err) {
+      authError.value = apiStore.error || '登录失败，请检查用户名和密码'
+    }
+  }
+  authLoading.value = false
 }
 
 // ─── 页面数据（从后端 API 获取，失败用默认值） ───
@@ -227,10 +275,18 @@ onBeforeUnmount(() => {
 
     <!-- 主内容区 -->
     <div class="main-content" id="mainContent">
-      <header class="header">
-        <div class="auth-buttons">
+            <header class="header">
+        <!-- 未登录：显示登录/注册按钮 -->
+        <div v-if="!apiStore.isLoggedIn" class="auth-buttons">
           <button class="auth-btn" @click="openAuth('login')">登 录</button>
           <button class="auth-btn" @click="openAuth('register')">注 册</button>
+        </div>
+                <!-- 已登录：显示用户头像和昵称 -->
+        <div v-else class="user-menu">
+          <img v-if="apiStore.user.avatar" :src="apiStore.user.avatar" class="user-avatar-img" alt="头像" />
+          <div v-else class="user-avatar">{{ apiStore.user.name.charAt(0).toUpperCase() }}</div>
+          <span class="user-nickname">{{ apiStore.user.name }}</span>
+          <button class="auth-btn logout-btn" @click="handleLogout">退出</button>
         </div>
       </header>
 
@@ -258,8 +314,9 @@ onBeforeUnmount(() => {
         <h2 id="authTitle">{{ authTitle }}</h2>
         <input type="text" id="authUser" placeholder="用户名" />
         <input type="password" id="authPass" placeholder="密码" />
-        <input type="password" id="authPass2" placeholder="确认密码" :style="{ display: showPass2 ? 'block' : 'none' }" />
-        <button class="submit-btn" id="authSubmit" @click="handleSubmit">{{ authSubmitText }}</button>
+                <input type="password" id="authPass2" placeholder="确认密码" :style="{ display: showPass2 ? 'block' : 'none' }" />
+        <div v-if="authError" class="auth-error">{{ authError }}</div>
+        <button class="submit-btn" id="authSubmit" @click="handleSubmit" :disabled="authLoading">{{ authLoading ? '处理中...' : authSubmitText }}</button>
         <div class="toggle-auth" id="toggleAuth" @click="toggleAuthMode" v-html="toggleText"></div>
       </div>
     </div>
@@ -359,6 +416,66 @@ body { overflow-x: hidden; }
   letter-spacing: 2px;
 }
 .index-body .auth-buttons .auth-btn:hover { background: rgba(255,255,255,0.5); }
+
+/* 用户菜单（已登录） */
+.index-body .user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.index-body .user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.index-body .user-avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.index-body .user-nickname {
+  color: rgba(255,255,255,0.95);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.index-body .logout-btn {
+  padding: 6px 18px !important;
+  font-size: 0.85rem !important;
+  background: rgba(255,255,255,0.2) !important;
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.index-body .logout-btn:hover {
+  background: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* 登录错误消息 */
+.modal .auth-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin: 8px 0;
+  text-align: center;
+}
+.modal .submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* first-title */
 .first-title {

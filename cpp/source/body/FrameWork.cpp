@@ -432,8 +432,9 @@ void HttpServerRoutine(int Port) {
             }
         }
 
-                std::cout << "[登录] 尝试登录 - name: '" << name << "', device: '" << deviceName << "', IP: " << clientIp << std::endl;
-        int permission = db->User(name, password);  // 验证用户名密码，返回权限级别
+                                std::cout << "[登录] 尝试登录 - name: '" << name << "', device: '" << deviceName << "', IP: " << clientIp << std::endl;
+        std::string userAvatar;
+        int permission = db->User(name, password, &userAvatar);  // 验证用户名密码，返回权限级别，同时获取头像
 
         if (permission > 0) {  // 验证成功（permission > 0）
             int userId = db->Get_UserId(name);      // 获取用户ID
@@ -478,13 +479,14 @@ void HttpServerRoutine(int Port) {
             }
             devicesJson += "]";
 
-            // 组装登录成功响应：包含 token、用户信息、设备列表
-            res.body = "{"
+                        // 组装登录成功响应：包含 token、用户信息、设备列表、头像
+                        res.body = "{"
                 "\"status\": \"success\", "
                 "\"message\": \"登录成功\", "
                 "\"token\": \"" + token + "\", "
                 "\"user_id\": " + std::to_string(userId) + ", "
                 "\"level\": " + std::to_string(permission) + ", "
+                "\"avatar\": \"" + userAvatar + "\", "
                 "\"device_name\": \"" + deviceName + "\", "
                 "\"devices\": " + devicesJson + "}";
         } else {

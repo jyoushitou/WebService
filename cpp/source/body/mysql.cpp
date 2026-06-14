@@ -1,7 +1,7 @@
 // ============================================================
 // mysql.cpp — MySQL 数据库操作实现
 // 功能：数据库连接管理、用户鉴权、数据库创建
-// ============================================================
+// ===========================================================
 
 #include "../header/MyMySQL.h"
 
@@ -107,7 +107,7 @@ namespace MySQL{
     // 
     // ⚠️ 安全注意：这里直接拼接 SQL 字符串，存在 SQL 注入风险！
     // 生产环境应使用参数化查询（Prepared Statement）
-    int mysql::User(const std::string name , const std::string user_password){
+    int mysql::User(const std::string name , const std::string user_password, std::string* userAvatar){
         // 查当前数据库（调试用）
         mysql_query(conn, "SELECT DATABASE();");
         MYSQL_RES* dbRes = mysql_store_result(conn);
@@ -117,9 +117,9 @@ namespace MySQL{
             mysql_free_result(dbRes);
         }
 
-        // 查询用户信息
+                // 查询用户信息
         // ⚠️ SQL 注入风险：name 如果包含单引号可被利用
-        std::string sql = "select name, password, permission from users where name = '" + name + "';";
+        std::string sql = "select name, password, permission, avatar from users where name = '" + name + "';";
         std::cout << "[MySQL Debug] SQL: " << sql << std::endl;
         if (mysql_query(conn, sql.c_str())) {
             Tools::Out_System_Error("查询失败: " + std::string(mysql_error(conn)));
@@ -139,7 +139,7 @@ namespace MySQL{
             return 0;                           // 用户不存在
         }
 
-        // 解析结果行：row[0]=name, row[1]=password, row[2]=permission
+                // 解析结果行：row[0]=name, row[1]=password, row[2]=permission, row[3]=avatar
         std::string db_password = row[1] ? row[1] : "";
         int db_permission = 0;
         if (row[2]) {
@@ -149,6 +149,10 @@ namespace MySQL{
         // 密码匹配 → 登录成功
         if (db_password == user_password) {
             Tools::Out_System_Mysql("欢迎用户 " + name + "，权限: " + std::to_string(db_permission));
+            // 如果 userAvatar 指针不为空，填入查询到的头像
+            if (userAvatar != nullptr && row[3]) {
+                *userAvatar = row[3];
+            }
             mysql_free_result(result);
             return db_permission;               // 返回权限级别
         } else {
@@ -165,7 +169,7 @@ namespace MySQL{
         return 0;
     }
 
-    // 根据用户名查询用户 ID
+        // 根据用户名查询用户 ID
     int mysql::Get_UserId(std::string name){
         std::string sql = "select id from users where name = '" + name + "';";
         if (mysql_query(conn, sql.c_str())) {
@@ -186,6 +190,28 @@ namespace MySQL{
         int user_id = row[0] ? std::stoi(row[0]) : 0;
         mysql_free_result(result);              // 必须释放结果集，否则内存泄漏
         return user_id;
+    }
+
+    // 根据用户名查询用户头像
+    std::string mysql::Get_Avatar(std::string name){
+        std::string sql = "select avatar from users where name = '" + name + "';";
+        if (mysql_query(conn, sql.c_str())) {
+            Tools::Out_System_Error("查询头像失败: " + std::string(mysql_error(conn)));
+            return "";
+        }
+        MYSQL_RES* result = mysql_store_result(conn);
+        if(!result){
+            Tools::Out_System_Error("获取头像结果失败: " + std::string(mysql_error(conn)));
+            return "";
+        }
+        MYSQL_ROW row = mysql_fetch_row(result);
+        if(!row){
+            mysql_free_result(result);
+            return "";
+        }
+        std::string avatar = row[0] ? row[0] : "";
+        mysql_free_result(result);
+        return avatar;
     }
 
     // 析构函数：自动关闭连接

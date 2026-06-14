@@ -180,11 +180,12 @@ export const useApiStore = defineStore('api', {
           password: credentials.password
         })
 
-        if (response.data.status === 'success') {
+                if (response.data.status === 'success') {
           const userData = {
             user_id: response.data.user_id,
             level: response.data.level,
-            name: credentials.name
+            name: credentials.name,
+            avatar: response.data.avatar || ''
           }
 
           localStorage.setItem('token', response.data.token)
