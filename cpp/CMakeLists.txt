@@ -67,6 +67,7 @@ add_executable(${PROJECT_NAME}
     source/body/mysql.cpp         # MySQL 数据库操作
     source/body/Tools.cpp         # 工具函数
     source/body/https_api.cpp     # HTTP 服务器实现
+    source/body/Token.cpp         # Token验证
 )
 
 # ===== 链接库 =====

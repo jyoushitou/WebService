@@ -18,7 +18,7 @@
 #include "Tools.h"          // 工具库
 #include "MyMySQL.h"        // MySQL 封装
 #include "https_api.h"      // HTTP 服务器
-
+#include "FarmeWork.h"      // 业务库
 // ===== extern 声明 =====
 // 告诉编译器这些变量/函数在别的 .cpp 文件中定义（FrameWork.cpp）
 // extern 只声明不定义，链接时由链接器寻找实际定义
