@@ -20,24 +20,25 @@ function goToArticle() {
 // ─── 页面数据（从后端 API 获取，失败用默认值） ───
 const sectionsData = ref([
   { title: '文章', rows: [
-    { label: '标签1', imgs: ['/image/0_0_0.jpg','/image/0_0_1.jpg','/image/0_0_2.jpg','/image/0_0_3.jpg','/image/0_0_4.jpg','/image/0_0_5.jpg'] },
-    { label: '标签2', imgs: ['/image/0_1_0.jpg','/image/0_1_1.jpg','/image/0_1_2.jpg','/image/0_1_3.jpg','/image/0_1_4.jpg'] },
-    { label: '标签3', imgs: ['/image/0_2_0.jpg','/image/0_2_1.jpg','/image/0_2_2.jpg','/image/0_2_3.jpg'] }
+    { label: '标签1', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '标签2', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png'] },
+    { label: '标签3', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] }
   ]},
   { title: '图片', rows: [
-    { label: '标签1', imgs: ['/image/1_0_0.jpg','/image/1_0_1.jpg','/image/1_0_2.jpg','/image/1_0_3.jpg','/image/1_0_4.jpg','/image/1_0_5.jpg'] },
-    { label: '标签2', imgs: ['/image/1_1_0.jpg','/image/1_1_1.jpg','/image/1_1_2.jpg','/image/1_1_3.jpg','/image/1_1_4.jpg'] },
-    { label: '标签3', imgs: ['/image/1_2_0.jpg','/image/1_2_1.jpg','/image/1_2_2.jpg','/image/1_2_3.jpg'] }
+    { label: '标签1', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '标签2', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png'] },
+    { label: '标签3', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] }
   ]},
   { title: '视频', rows: [
-    { label: '标签1', imgs: ['/image/2_0_0.jpg','/image/2_0_1.jpg','/image/2_0_2.jpg','/image/2_0_3.jpg','/image/2_0_4.jpg','/image/2_0_5.jpg'] },
-    { label: '标签2', imgs: ['/image/2_1_0.jpg','/image/2_1_1.jpg','/image/2_1_2.jpg','/image/2_1_3.jpg','/image/2_1_4.jpg'] },
-    { label: '标签3', imgs: ['/image/2_2_0.jpg','/image/2_2_1.jpg','/image/2_2_2.jpg','/image/2_2_3.jpg'] }
+    { label: '标签1', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '标签2', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png'] },
+    { label: '标签3', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] }
   ]},
-  { title: '博客', rows: [
-    { label: '标签1', imgs: ['/image/3_0_0.jpg','/image/3_0_1.jpg','/image/3_0_2.jpg','/image/3_0_3.jpg','/image/3_0_4.jpg','/image/3_0_5.jpg'] },
-    { label: '标签2', imgs: ['/image/3_1_0.jpg','/image/3_1_1.jpg','/image/3_1_2.jpg','/image/3_1_3.jpg','/image/3_1_4.jpg'] },
-    { label: '标签3', imgs: ['/image/3_2_0.jpg','/image/3_2_1.jpg','/image/3_2_2.jpg','/image/3_2_3.jpg'] }
+    { title: '博客', rows: [
+    { label: '标签1', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '标签2', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png'] },
+    { label: '标签3', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '空标签(无图片)', imgs: [] }
   ]}
 ])
 
@@ -199,14 +200,16 @@ onBeforeUnmount(() => {
         <template v-for="(sec, si) in sectionsData" :key="si">
           <h2 class="first-title" :class="{ clickable: sec.title === '文章' }" @click="sec.title === '文章' && goToArticle()">{{ sec.title }}</h2>
           <section class="section">
-            <div v-for="(row, ri) in sec.rows" :key="ri" class="h-backgrand" :class="{ clickable: sec.title === '文章' }" @click="sec.title === '文章' && goToArticle()">
-              <div class="second-title" :class="{ clickable: sec.title === '文章' }" @click.stop="sec.title === '文章' && goToArticle()">{{ row.label }}</div>
-              <div class="content-col">
-                <div class="img-row">
-                  <div v-for="(img, bi) in row.imgs" :key="bi" class="img-box" :class="{ clickable: sec.title === '文章' }" @click.stop="sec.title === '文章' && goToArticle()"><img :src="img" alt="" /></div>
-                </div>
-              </div>
-            </div>
+                        <template v-for="(row, ri) in sec.rows" :key="ri">
+                          <div v-if="row.imgs && row.imgs.length > 0" class="h-backgrand" :class="{ clickable: sec.title === '文章' }" @click="sec.title === '文章' && goToArticle()">
+                            <div class="second-title" :class="{ clickable: sec.title === '文章' }" @click.stop="sec.title === '文章' && goToArticle()">{{ row.label }}</div>
+                            <div class="content-col">
+                              <div class="img-row">
+                                <div v-for="(img, bi) in row.imgs.slice(0, 10)" :key="bi" class="img-box" :class="{ clickable: sec.title === '文章' }" @click.stop="sec.title === '文章' && goToArticle()"><img :src="img" alt="" /></div>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
           </section>
         </template>
       </main>

@@ -378,7 +378,7 @@ void HttpServerRoutine(int Port) {
     // 注册所有业务路由（原分散在下的 lambda 路由已整合到 RegisterBusinessRoutes()）
     g_server->RegisterBusinessRoutes();
 
-    // ===== POST /api/login 用户登录（支持多设备登录） =====
+        // ===== POST /api/login 用户登录（支持多设备登录） =====
     // 需要 db 局部变量做数据库查询，所以暂不抽离到 RegisterBusinessRoutes()
     g_server->Post("/api/login", [db](const Http::HttpRequest& req) -> Http::HttpResponse {
         Http::HttpResponse res;
@@ -438,6 +438,16 @@ void HttpServerRoutine(int Port) {
 
         if (permission > 0) {  // 验证成功（permission > 0）
             int userId = db->Get_UserId(name);      // 获取用户ID
+
+            // 更新用户登录信息：最后登录时间、IP、登录次数
+            std::time_t now = std::time(nullptr);
+            std::string updateSql = "UPDATE users SET "
+                "last_login_time = FROM_UNIXTIME(" + std::to_string(now) + "), "
+                "last_login_ip = '" + clientIp + "', "
+                "login_count = login_count + 1 "
+                "WHERE id = " + std::to_string(userId);
+            mysql_query(db->conn, updateSql.c_str());
+
             std::string token = GenerateToken();    // 生成会话 token
 
             {   // 将登录会话信息存入全局 token 存储
@@ -446,7 +456,7 @@ void HttpServerRoutine(int Port) {
                 device.deviceName = deviceName;
                 device.userAgent = userAgent;
                 device.clientIp = clientIp;
-                device.loginTime = std::time(nullptr);
+                device.loginTime = now;
                 g_tokenStore[token] = {userId, permission, name, device};
             }
 
@@ -494,6 +504,50 @@ void HttpServerRoutine(int Port) {
             res.status_code = 401;
             res.body = "{\"status\": \"fail\", \"message\": \"用户名或密码错误\"}";
         }
+                return res;
+    });
+
+    // ===== POST /api/register 用户注册 =====
+    g_server->Post("/api/register", [db](const Http::HttpRequest& req) -> Http::HttpResponse {
+        Http::HttpResponse res;
+        res.status_code = 200;
+        res.status_text = "OK";
+        res.headers["Content-Type"] = "application/json";
+        res.headers["Access-Control-Allow-Origin"] = "*";
+
+        if (!db) {
+            res.status_code = 500;
+            res.body = "{\"status\": \"error\", \"message\": \"数据库不可用\"}";
+            return res;
+        }
+
+        std::string name = ParseJsonString(req.body, "name");
+        std::string password = ParseJsonString(req.body, "password");
+
+        if (name.empty() || password.empty()) {
+            res.status_code = 400;
+            res.body = "{\"status\": \"fail\", \"message\": \"用户名或密码不能为空\"}";
+            return res;
+        }
+
+        // 检查用户名是否已存在
+        int existingId = db->Get_UserId(name);
+        if (existingId > 0) {
+            res.body = "{\"status\": \"fail\", \"message\": \"用户名已存在\"}";
+            return res;
+        }
+
+        // 插入新用户（默认 permission = 1 普通用户）
+        std::string sql = "INSERT INTO users (name, password, permission, login_count, created_at) VALUES ('"
+            + name + "', '" + password + "', 1, 0, NOW())";
+        if (mysql_query(db->conn, sql.c_str())) {
+            res.status_code = 500;
+            res.body = "{\"status\": \"error\", \"message\": \"注册失败: " + std::string(mysql_error(db->conn)) + "\"}";
+            return res;
+        }
+
+        Tools::Out_System_Mysql("新用户注册成功: " + name);
+        res.body = "{\"status\": \"success\", \"message\": \"注册成功\"}";
         return res;
     });
 

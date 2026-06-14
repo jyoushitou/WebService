@@ -18,7 +18,7 @@
 // 设计思路：
 // 使用 MySQL C API（mysql_init / mysql_real_connect / mysql_query 等）
 // 而不是 C++ connector，更接近底层，便于理解数据库连接的工作原理。
-// ============================================================
+// ======================================================
 namespace MySQL{
     // 全局函数：检查并创建数据库（接受外部的 MYSQL* 句柄）
     bool Create_DataBases(MYSQL* ,std::string);
@@ -26,10 +26,12 @@ namespace MySQL{
     // ===== mysql 类 — 数据库连接和操作封装 =====
     // 封装了一个完整的 MySQL 连接生命周期：
     // 构造 → 创建句柄 → 连接服务器 → 选择数据库 → 操作 → 析构断开
-    class mysql{
+        class mysql{
         public:
         mysql();                                             // 默认构造函数：连接 "web_server" 数据库
         mysql(std::string str);                              // 指定数据库名的构造函数
+
+        MYSQL* conn;                                         // MySQL 连接句柄（核心资源）
 
         // 数据库管理
         bool Create_DataBases();                             // 创建/验证当前默认数据库
@@ -42,15 +44,13 @@ namespace MySQL{
 
         ~mysql();                                            // 析构时自动关闭连接
 
-        private:
+                private:
         // ===== MySQL 连接参数 =====
         const std::string host = "localhost";                // 数据库服务器地址（本地）
         const int port = 3306;                               // MySQL 默认端口
         const std::string user = "web_server";               // 数据库用户名（需提前创建）
         const std::string password = "123456";               // 数据库密码
         std::string database;                                // 当前选中的数据库名称
-
-        MYSQL* conn;                                         // MySQL 连接句柄（核心资源）
 
         // ===== 私有工具方法 =====
         bool Create_Socket();                                // 检查句柄是否创建成功
