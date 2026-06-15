@@ -282,16 +282,6 @@ CREATE TABLE IF NOT EXISTS users (
 - 支持 Windows（线程）和 Linux（fork）两种后端启动方式
 
 ---
-- 此仓库为前后端一起的仓库
-- windows测试
-- docker测试
-- 然后经前后端部署
-# 前端仓库：
-
-
-# 后端仓库：
-
-
 ## 📜 许可证
 
 [MIT License](LICENSE)
