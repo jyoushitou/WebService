@@ -24,7 +24,7 @@ export default defineConfig({
 
   // ===== 开发服务器 =====
   server: {
-    port: 3000,               // 开发服务器端口（默认 5173）
+    port: 60907,               // 开发服务器端口（默认 5173）
     proxy: {
       // API 代理：前端发往 /api/* 的请求转发到后端 C++ 服务器
       '/api': {

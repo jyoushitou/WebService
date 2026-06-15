@@ -20,7 +20,7 @@ function goToArticle() {
 // ─── 页面数据（从后端 API 获取，失败用默认值） ───
 const sectionsData = ref([
   { title: '文章', rows: [
-    { label: '标签1', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
+    { label: '穿越', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] },
     { label: '标签2', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png'] },
     { label: '标签3', imgs: ['/image/129442526_p0.png','/image/88515515_p0.png','/image/129442526_p0.png','/image/88515515_p0.png'] }
   ]},
