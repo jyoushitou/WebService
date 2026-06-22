@@ -86,7 +86,7 @@ WebServer/
 ### 1️⃣ 编译并启动后端
 
 ```bash
-# 使用 CMake 构建
+# 使用 CMake 构建（推荐）
 cd cpp
 mkdir build && cd build
 cmake ..
@@ -104,7 +104,9 @@ g++ -std=c++17 body/*.cpp -I header -lpthread -lmysqlclient -o server
 ./server
 ```
 
-服务器默认监听端口 **60906**。
+服务器默认监听端口 **60906**，绑定所有网络接口（`0.0.0.0`），允许任意 IP 通过该端口访问 API。
+
+> **跨平台说明**：Windows 上数据库连接本地的 `localhost`，Linux 上自动连接远程 `192.168.0.52` 的 MySQL 服务器。
 
 ### 2️⃣ 启动前端开发服务器
 
@@ -220,15 +222,27 @@ accept() 循环          → 接受新连接
 
 ## ⚙️ 配置说明
 
-### 后端数据库（`cpp/source/body/mysql.cpp`）
+### 后端数据库（`cpp/source/header/MyMySQL.h`）
+
+数据库配置通过条件编译自动适配平台：
+
+| 平台 | MySQL 头文件路径 | 数据库服务器地址 |
+|------|-----------------|-----------------|
+| **Windows**（本地开发） | `#include <mysql.h>` | `host = "localhost"` |
+| **Linux**（部署） | `#include <mysql/mysql.h>` | `host = "192.168.0.52"` |
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `host` | `localhost` | MySQL 服务器地址 |
 | `port` | `3306` | MySQL 端口 |
 | `user` | `web_server` | 数据库用户名 |
 | `password` | `123456` | 数据库密码 |
 | `database` | `web_server` | 数据库名称 |
+
+### HTTP 服务器端口
+
+| 位置 | 代码 | 说明 |
+|------|------|------|
+| `main.cpp:Initiate_Http(60906)` | 后端监听端口 | 服务器绑定所有网络接口（`INADDR_ANY`），允许各 IP 访问 |
 
 ### 前端代理（`vue/vite.config.js`）
 
