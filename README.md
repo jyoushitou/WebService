@@ -38,18 +38,16 @@ WebServer/
 │       ├── header/                    # 头文件
 │       │   ├── FarmeWork.h            # 核心框架：全局变量、结构体、函数声明
 │       │   ├── https_api.h            # HTTP 服务器：请求/响应、路由、Socket
-│       │   ├── Json.h                 # JSON 解析工具
 │       │   ├── MyMySQL.h              # MySQL 数据库操作封装
-│       │   ├── Token.h                # Token 生成与验证
-│       │   └── Tools.h                # 通用工具：日志、MIME 类型、文件读取
+│       │   ├── Task.h                 # 任务系统：任务类型/状态/线程管理
+│       │   └── Tools.h                # 通用工具：日志、MIME、文件操作 + Tools::Json + Tools::Auth
 │       └── body/                      # 源文件
 │           ├── main.cpp               # 程序入口
-│           ├── FrameWork.cpp          # 核心业务（路由、任务系统、用户线程）
+│           ├── FrameWork.cpp          # 核心业务（路由、任系统、用户线程）
 │           ├── https_api.cpp          # HTTP 服务器实现
-│           ├── Json.cpp               # JSON 解析实现
 │           ├── mysql.cpp              # MySQL 连接与操作
-│           ├── Token.cpp              # Token 实现
-│           └── Tools.cpp              # 工具函数实现
+│           ├── Task.cpp               # 任务系统实现
+│           └── Tools.cpp              # 工具函数 + Tools::Json + Tools::Auth 实现
 │
 └── vue/                               # Vue 3 前端
     ├── vite.config.js                 # Vite 配置
@@ -170,10 +168,10 @@ npm run build
 
 ```
 main()
-  ├── Initiave_MySQL()     → 创建全局 MySQL 连接
-  └── Initiave_Http()      → 启动 HTTP 服务器
+  ├── Initiate_MySQL()     → 创建全局 MySQL 连接
+  └── Initiate_Http()      → 启动 HTTP 服务器
         └── fork() / thread()
-              └── HttpServerRoutine()
+              └── Http_Server_Routine()
                     ├── 注册 API 路由
                     ├── 监听端口，接受连接
                     └── 每个客户端新线程处理
@@ -183,8 +181,8 @@ main()
 
 ```
 用户 A 登录
-  └── CreateUserThread()   → 为用户 A 创建专属线程
-        └── UserWorkerRoutine()
+  └── Create_User_Thread()   → 为用户 A 创建专属线程
+        └── User_Worker_Routine()
               ├── 独立 MySQL 连接
               ├── 任务队列（等待处理）
               ├── 心跳检测（每30秒）
@@ -198,10 +196,9 @@ main()
 | 模块 | 文件 | 说明 |
 |------|------|------|
 | **HTTP 服务器** | `https_api.cpp` | 完整 HTTP/1.1 实现：请求解析、响应构建、静态文件服务、CORS |
-| **任务框架** | `FrameWork.cpp` | 用户线程管理、任务投递/查询、异步处理、心跳 |
+| **任务框架** | `FrameWork.cpp` + `Task.cpp` | 用户线程管理、任务投递/查询、异步处理、心跳 |
 | **数据库** | `mysql.cpp` | MySQL C API 封装：连接管理、用户鉴权 |
-| **Token** | `Token.cpp` | 安全 Token 生成（随机+时间戳）、提取、验证 |
-| **工具** | `Tools.cpp` | 日志输出、文件读取、MIME 类型 |
+| **通用工具** | `Tools.cpp` | 日志输出、文件读取、MIME 类型、JSON 解析（Tools::Json）、Token 认证（Tools::Auth） |
 
 ### HTTP 请求处理流程
 
