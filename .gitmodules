@@ -1,6 +1,12 @@
 [submodule "vue"]
 	path = vue
 	url = https://github.com/jyoushitou/WebSever_Vue.git
-[submodule "cpp"]
-	path = cpp
-	url = https://github.com/jyoushitou/WebSever_cpp.git
+[submodule "BRPCGateway"]
+	path = BRPCGateway
+	url = https://github.com/jyoushitou/cpp_BRPCGateway.git
+[submodule "MySQL"]
+	path = MySQL
+	url = https://github.com/jyoushitou/cpp_MySQL.git
+[submodule "Service"]
+	path = Service
+	url = https://github.com/jyoushitou/cpp_Service.git
