@@ -10,3 +10,7 @@
 [submodule "Service"]
 	path = Service
 	url = https://github.com/jyoushitou/cpp_Service.git
+
+[submodule "CertService"]
+	path = CertService
+	url = https://github.com/jyoushitou/cpp_CertService.git
