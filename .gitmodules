@@ -3,7 +3,7 @@
 	url = https://github.com/jyoushitou/WebSever_Vue.git
 [submodule "GRPCGateway"]
 	path = GRPCGateway
-	url = https://github.com/jyoushitou/cpp_BRPCGateway.git
+	url = https://github.com/jyoushitou/WebService_cpp_GRPCGateway.git
 [submodule "MySQL"]
 	path = MySQL
 	url = https://github.com/jyoushitou/cpp_MySQL.git
