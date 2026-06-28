@@ -13,3 +13,6 @@
 [submodule "CertService"]
 	path = CertService
 	url = https://github.com/jyoushitou/cpp_CertService.git
+[submodule "proto"]
+	path = proto
+	url = https://github.com/jyoushitou/WebService_cpp_proto.git
