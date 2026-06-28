@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package service;
+
+option go_package = "github.com/your/proto/service";
+
+import "common/common.proto";
+
+// 业务服务 - 核心业务逻辑
+service BusinessService {
+    // 处理业务请求
+    rpc ProcessBusiness(BusinessRequest) returns (BusinessResponse);
+    
+    // 业务编排
+    rpc Orchestrate(OrchestrateRequest) returns (OrchestrateResponse);
+    
+    // 缓存操作
+    rpc CacheOperation(CacheRequest) returns (CacheResponse);
+    
+    // 健康检查
+    rpc HealthCheck(common.Empty) returns (common.StatusResponse);
+}
+
+message BusinessRequest {
+    string business_type = 1;
+    string action = 2;
+    bytes data = 3;
+    map<string, string> context = 4;
+}
+
+message BusinessResponse {
+    bool success = 1;
+    bytes result = 2;
+    string error_message = 3;
+}
+
+message OrchestrateRequest {
+    string workflow_id = 1;
+    repeated string steps = 2;
+    bytes input_data = 3;
+}
+
+message OrchestrateResponse {
+    string workflow_instance_id = 1;
+    string status = 2;
+    bytes output_data = 3;
+}
+
+message CacheRequest {
+    enum OperationType {
+        GET = 0;
+        SET = 1;
+        DELETE = 2;
+        EXISTS = 3;
+    }
+    OperationType operation = 1;
+    string key = 2;
+    bytes value = 3;
+    int32 ttl_seconds = 4;
+}
+
+message CacheResponse {
+    bool found = 1;
+    bytes value = 2;
+}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/your/proto/common";
+
+// 错误码枚举
+enum ErrorCode {
+    SUCCESS = 0;
+    UNKNOWN_ERROR = 1;
+    
+    // 通用错误 (1000-1999)
+    INVALID_REQUEST = 1000;
+    UNAUTHORIZED = 1001;
+    FORBIDDEN = 1002;
+    NOT_FOUND = 1003;
+    RATE_LIMITED = 1004;
+    
+    // 数据库错误 (2000-2999)
+    DB_CONNECTION_FAILED = 2000;
+    DB_QUERY_FAILED = 2001;
+    DB_TRANSACTION_FAILED = 2002;
+    
+    // 业务错误 (3000-3999)
+    BUSINESS_VALIDATION_FAILED = 3000;
+    BUSINESS_PROCESSING_FAILED = 3001;
+    
+    // 证书错误 (4000-4999)
+    CERT_EXPIRED = 4000;
+    CERT_INVALID = 4001;
+    CERT_DISTRIBUTION_FAILED = 4002;
+}

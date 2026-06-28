@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package mysql;
+
+option go_package = "github.com/your/proto/mysql";
+
+import "common/common.proto";
+
+// 数据库服务 - MySQL操作
+service DatabaseService {
+    // 查询操作
+    rpc Query(QueryRequest) returns (QueryResponse);
+    
+    // 执行操作 (INSERT/UPDATE/DELETE)
+    rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+    
+    // 批量操作
+    rpc BatchExecute(BatchExecuteRequest) returns (BatchExecuteResponse);
+    
+    // 事务管理
+    rpc BeginTransaction(common.Empty) returns (TransactionResponse);
+    rpc Commit(TransactionRequest) returns (common.Empty);
+    rpc Rollback(TransactionRequest) returns (common.Empty);
+    
+    // 连接池管理
+    rpc GetConnection(common.Empty) returns (ConnectionResponse);
+    rpc ReleaseConnection(ConnectionRequest) returns (common.Empty);
+    
+    // 健康检查
+    rpc HealthCheck(common.Empty) returns (common.StatusResponse);
+}
+
+message QueryRequest {
+    string sql = 1;
+    repeated bytes params = 2;
+    string transaction_id = 3;
+    int32 timeout_seconds = 4;
+}
+
+message QueryResponse {
+    repeated Row rows = 1;
+    int32 affected_rows = 2;
+    double elapsed_seconds = 3;
+}
+
+message Row {
+    map<string, bytes> columns = 1;
+}
+
+message ExecuteRequest {
+    string sql = 1;
+    repeated bytes params = 2;
+    string transaction_id = 3;
+}
+
+message ExecuteResponse {
+    int32 affected_rows = 1;
+    int64 last_insert_id = 2;
+}
+
+message BatchExecuteRequest {
+    repeated ExecuteRequest requests = 1;
+}
+
+message BatchExecuteResponse {
+    repeated ExecuteResponse responses = 1;
+}
+
+message TransactionRequest {
+    string transaction_id = 1;
+}
+
+message TransactionResponse {
+    string transaction_id = 1;
+    bool success = 2;
+}
+
+message ConnectionRequest {
+    string connection_id = 1;
+}
+
+message ConnectionResponse {
+    string connection_id = 1;
+    string database_url = 2;
+}

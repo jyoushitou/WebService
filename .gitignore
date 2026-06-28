@@ -11,4 +11,12 @@ vue/node_modules/
 # html源码
 html_Src
 
+# 部署生成的文件
+deploy/certs/
+deploy/nginx/
+
+# 部署生成的文件
+deploy/certs/
+deploy/nginx/
+
 # 如果有其他构建产物，也可以加在这里

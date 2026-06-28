@@ -198,9 +198,10 @@ main()
 | 模块 | 文件 | 说明 |
 |------|------|------|
 | **HTTP 服务器** | `https_api.cpp` | 完整 HTTP/1.1 实现：请求解析、响应构建、静态文件服务、CORS |
-| **任务框架** | `FrameWork.cpp` + `Task.cpp` | 用户线程管理、任务投递/查询、异步处理、心跳 |
+| **RPC 服务器** | `RPCServer.cpp` | 基于 Boost.Beast WebSocket 的 JSON-RPC 服务端 |
+| **任务框架** | `UserThread.cpp` + `Task.cpp` | 用户线程管理、任务投递/查询、异步处理、心跳 |
 | **数据库** | `mysql.cpp` | MySQL C API 封装：连接管理、用户鉴权 |
-| **通用工具** | `Tools.cpp` | 日志输出、文件读取、MIME 类型、JSON 解析（Tools::Json）、Token 认证（Tools::Auth） |
+| **通用工具** | `Utils.cpp` | 日志输出、文件读取、MIME 类型、JSON 解析（Utils::Json）、Token 认证（Utils::Auth） |
 
 ### HTTP 请求处理流程
 
@@ -286,6 +287,20 @@ CREATE TABLE IF NOT EXISTS users (
 ---
 
 ## 🧪 开发说明
+
+- 后端日志分级输出：`[输出]` `[MySQL]` `[HTTP]` `[错误]`
+- 前端 Axios 请求拦截器自动注入 Token
+- 生产构建后，后端服务器自动查找并托管静态文件
+- 支持 Windows（线程）和 Linux（fork）两种后端启动方式
+
+---
+## 📜 许可证
+
+[MIT License](LICENSE)
+
+---
+
+> **用原生代码理解 Web 的本质，用现代框架提升开发的体验。**
 
 - 后端日志分级输出：`[输出]` `[MySQL]` `[HTTP]` `[错误]`
 - 前端 Axios 请求拦截器自动注入 Token
