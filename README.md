@@ -1,6 +1,6 @@
-# WebServer - C++ 原生全栈 Web 服务 → gRPC 微服务架构
+# WebServer - C++ gRPC 微服务框架
 
-> **从零实现的 C++ HTTP 服务器 → gRPC 微服务架构演进**
+> **从零实现的 C++ HTTP 服务器 → gRPC 微服务框架**
 >
 > 用最底层的方式理解 Web 工作原理，用微服务架构承载业务扩展
 
@@ -9,18 +9,16 @@
 ![gRPC](https://img.shields.io/badge/gRPC-1.0-%234285F4?style=flat-square&logo=grpc)
 ![MySQL](https://img.shields.io/badge/MySQL-8-%234479A1?style=flat-square&logo=mysql)
 ![Protobuf](https://img.shields.io/badge/Protobuf-3.15-%23FF6C37?style=flat-square&logo=protocol-buffers)
-![Rust](https://img.shields.io/badge/Rust-1.70-%23DEA584?style=flat-square&logo=rust)
-![Go](https://img.shields.io/badge/Go-1.21-%2300ADD8?style=flat-square&logo=go)
 
 ---
 
 ## 📖 项目简介
 
-本项目是一个**从零开始、不依赖任何第三方 Web 框架**的 C++ HTTP 服务器，逐步演进为完整的 gRPC 微服务架构。
+本项目是一个**从零开始、不依赖任何第三方 Web 框架**的 C++ HTTP 服务器，逐步演进为完整的 **C++ gRPC 微服务框架**。
 
 > **原 C++ 单体后端已归档**：[WebSever_cpp](https://github.com/jyoushitou/WebSever_cpp.git)
 >
-> 归档版本为纯 C++ 实现的单体 HTTP 服务器，当前仓库为微服务架构演进版本。
+> 归档版本为纯 C++ 实现的单体 HTTP 服务器，当前仓库为 gRPC 微服务框架版本。
 
 ### 架构演进路线
 
@@ -30,19 +28,15 @@
   └── 手动解析 HTTP 协议、多线程处理、MySQL 直连
   └── 归档仓库：https://github.com/jyoushitou/WebSever_cpp.git
 
-阶段二：微服务架构（进行中）
-  gRPC 微服务 + 独立 Proto 仓库 + 服务拆分
-  └── 网关统一入口、业务解耦、独立部署
-  └── 多语言支持：C++ / Rust / Go
+阶段二：gRPC 微服务框架（进行中）
+  C++ gRPC 框架核心 + 独立 Proto 仓库 + 框架组件
+  └── 网关、注册中心、配置中心、链路追踪、监控告警
+  └── 全部使用 C++ 实现
 
 阶段三：容器化部署（规划中）
   Docker + Kubernetes + CI/CD
   └── 弹性伸缩、服务治理、自动化运维
 ```
-
-### 核心理念
-
-从 TCP Socket 连接到 HTTP 协议解析，从多线程并发到 gRPC 微服务通信，从单一语言到多语言异构架构，完整呈现一个 Web 服务器是如何炼成的。每个组件都亲手实现，深入理解每一层的工作原理。
 
 ---
 
@@ -54,57 +48,39 @@ WebServer/                              # 总仓库（Git 根仓库）
 ├── proto/                              # [子仓库] Proto 接口定义
 │   ├── source/                         # Proto 源文件
 │   │   ├── common/                     # 公共类型、错误码
-│   │   │   ├── common.proto            # Empty、PageRequest 等通用消息
-│   │   │   └── error_code.proto        # 全局错误码枚举
 │   │   ├── gateway/                    # 网关服务接口
-│   │   │   └── gateway_service.proto   # 路由、限流、鉴权
-│   │   ├── user/                       # 用户服务接口
-│   │   │   └── user_service.proto      # 注册、登录、用户信息
-│   │   ├── article/                    # 文章服务接口
-│   │   │   └── article_service.proto   # 文章 CRUD、分类、标签
-│   │   ├── blog/                       # 博客服务接口
-│   │   │   └── blog_service.proto      # 博客管理、评论、点赞
-│   │   ├── image/                      # 图片服务接口
-│   │   │   └── image_service.proto     # 图片上传、处理、存储
-│   │   ├── video/                      # 视频服务接口
-│   │   │   └── video_service.proto     # 视频上传、转码、流媒体
-│   │   ├── search/                     # 搜索服务接口
-│   │   │   └── search_service.proto    # 全文搜索、索引管理
+│   │   ├── registry/                   # 注册中心接口
+│   │   ├── config/                     # 配置中心接口
+│   │   ├── tracing/                    # 链路追踪接口
+│   │   ├── monitor/                    # 监控告警接口
 │   │   ├── frontend/                   # 前端服务接口
-│   │   │   └── frontend_service.proto  # 页面数据、事件推送、文件传输
-│   │   ├── CMakeLists.txt              # 编译为静态库 librpc_protos.a
-│   │   └── README.md                   # Proto 仓库使用说明
-│   └── build/                          # 编译输出目录
-│       ├── lib/                        # 编译后的库文件
-│       ├── bin/                        # 可执行文件
-│       └── generated/                  # 生成的 .pb.h / .pb.cc
+│   │   ├── CMakeLists.txt              # 编译为静态库
+│   │   └── README.md
+│   └── build/
 │
-├── GRPCGateway/                        # [子仓库] gRPC 网关 (C++)
-│   └── 职责：协议转换、路由分发、限流控制、鉴权验证
+├── GRPCGateway/                        # [子仓库] ✅ 网关 - 对外统一入口
+│   └── 职责：协议转换(HTTP→gRPC)、路由分发、限流控制、鉴权验证
 │
-├── UserService/                        # [子仓库] 用户服务 (Rust)
-│   └── 职责：用户注册/登录、Token 管理、权限控制、设备管理
+├── RegistryCenter/                     # [子仓库] ✅ 注册中心 - 服务注册发现
+│   └── 职责：服务注册、健康检查、动态路由、负载均衡
 │
-├── ArticleService/                     # [子仓库] 文章服务 (Go)
-│   └── 职责：文章 CRUD、分类管理、标签管理、文章搜索
+├── ConfigCenter/                       # [子仓库] ⚠️ 配置中心 - 统一配置管理
+│   └── 职责：配置存储、动态下发、版本管理、配置热更新
 │
-├── BlogService/                        # [子仓库] 博客服务 (Go)
-│   └── 职责：博客管理、评论系统、点赞收藏、博客推荐
+├── TracingService/                     # [子仓库] ⚠️ 链路追踪 - 请求全链路追踪
+│   └── 职责：Span 收集、调用链分析、性能瓶颈定位
 │
-├── ImageService/                       # [子仓库] 图片服务 (Rust)
-│   └── 职责：图片上传、缩略图生成、格式转换、CDN 分发
+├── MonitorService/                     # [子仓库] ⚠️ 监控告警 - 系统监控
+│   └── 职责：指标采集、告警规则、可视化面板、通知推送
 │
-├── VideoService/                       # [子仓库] 视频服务 (Rust)
-│   └── 职责：视频上传、转码处理、切片存储、流媒体播放
-│
-├── SearchService/                      # [子仓库] 搜索服务 (Go)
-│   └── 职责：全文索引、搜索排序、搜索建议、索引同步
+├── BusinessService/                    # [子仓库] ✅ 业务微服务模板
+│   └── 职责：实际业务逻辑承载（用户/文章/博客/图片/视频/搜索）
 │
 ├── vue/                                # [子仓库] Vue 3 前端
-│   └── 职责：用户界面、gRPC-Web 通信、实时数据展示
+│   └── 职责：用户界面、gRPC-Web 通信
 │
-├── .gitmodules                         # Git 子模块配置
-└── README.md                           # 本文件
+├── .gitmodules
+└── README.md
 ```
 
 ---
@@ -115,223 +91,182 @@ WebServer/                              # 总仓库（Git 根仓库）
 
 | 组件 | 版本要求 | 说明 |
 |------|----------|------|
-| C++ 编译器 | C++17（GCC 8+ / MSVC 2019+） | 网关编译 |
-| CMake | 3.10+ | C++ 构建系统 |
-| MySQL | 8.0+（含 `libmysqlclient-dev`） | 数据库 |
+| C++ 编译器 | C++17（GCC 8+ / MSVC 2019+） | 全部 C++ 实现 |
+| CMake | 3.16+ | 构建系统 |
 | gRPC | 1.40+ | 微服务通信框架 |
 | Protobuf | 3.15+ | 序列化协议 |
-| Rust | 1.70+ | UserService、ImageService、VideoService |
-| Go | 1.21+ | ArticleService、BlogService、SearchService |
+| MySQL | 8.0+ | 数据库 |
+| Redis | 6.0+ | 缓存/配置存储 |
 | Node.js | 18+ | 前端构建 |
-| npm | 9+ | 前端包管理 |
 
-### 1️⃣ 克隆仓库（含子模块）
+### 1️⃣ 克隆仓库
 
 ```bash
 git clone --recursive https://github.com/jyoushitou/WebServer.git
 cd WebServer
-
-# 如果已克隆但未拉取子模块
 git submodule update --init --recursive
 ```
 
 ### 2️⃣ 编译 Proto 库
 
-Proto 仓库独立编译为静态库，供所有微服务引用：
-
 ```bash
-cd proto/source
-mkdir -p ../build && cd ../build
+cd proto/source && mkdir -p ../build && cd ../build
 cmake ../source
 make -j$(nproc)
 ```
 
-编译完成后：
-- `build/lib/librpc_protos.a` — 静态库
-- `build/generated/` — 生成的 `.pb.h` 和 `.pb.cc` 文件
-
-### 3️⃣ 编译并启动各微服务
-
-#### 编译 GRPCGateway（网关 - C++）
+### 3️⃣ 编译框架组件
 
 ```bash
-cd GRPCGateway
-mkdir build && cd build
-cmake ..
-cmake --build .
-./GRPCGateway
-```
+# 编译网关
+cd GRPCGateway && mkdir build && cd build
+cmake .. && cmake --build . && ./GRPCGateway
 
-#### 编译 UserService（用户服务 - Rust）
+# 编译注册中心
+cd RegistryCenter && mkdir build && cd build
+cmake .. && cmake --build . && ./RegistryCenter
 
-```bash
-cd UserService
-cargo build --release
-./target/release/user-service
-```
+# 编译配置中心
+cd ConfigCenter && mkdir build && cd build
+cmake .. && cmake --build . && ./ConfigCenter
 
-#### 编译 ArticleService（文章服务 - Go）
+# 编译链路追踪
+cd TracingService && mkdir build && cd build
+cmake .. && cmake --build . && ./TracingService
 
-```bash
-cd ArticleService
-go build -o article-service .
-./article-service
-```
-
-#### 编译 BlogService（博客服务 - Go）
-
-```bash
-cd BlogService
-go build -o blog-service .
-./blog-service
-```
-
-#### 编译 ImageService（图片服务 - Rust）
-
-```bash
-cd ImageService
-cargo build --release
-./target/release/image-service
-```
-
-#### 编译 VideoService（视频服务 - Rust）
-
-```bash
-cd VideoService
-cargo build --release
-./target/release/video-service
-```
-
-#### 编译 SearchService（搜索服务 - Go）
-
-```bash
-cd SearchService
-go build -o search-service .
-./search-service
+# 编译监控告警
+cd MonitorService && mkdir build && cd build
+cmake .. && cmake --build . && ./MonitorService
 ```
 
 ### 4️⃣ 启动前端
 
 ```bash
-cd vue
-npm install
-npm run dev
+cd vue && npm install && npm run dev
 ```
-
-前端开发服务器运行在 **http://localhost:60907**。
 
 ---
 
-## 🔌 gRPC 微服务接口
+## 🔌 gRPC 框架核心组件
 
-### GatewayService — 网关服务（C++，端口:50051）
+### 1. GRPCGateway — 网关（✅ 核心，端口:50051）
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `RouteRequest` | service_name, method_name, payload, metadata | status_code, data, error_message | 路由请求到后端微服务 |
-| `HttpToGrpc` | method, path, headers, body, query_params | status_code, headers, body | HTTP 协议转 gRPC |
-| `RateLimit` | client_ip, api_path, request_count | allowed, remaining_quota, reset_time_seconds | 限流控制 |
-| `Authenticate` | token, service_name, method_name | authenticated, user_id, permissions | 鉴权验证 |
+对外统一入口，所有客户端请求首先到达网关。
 
-### UserService — 用户服务（Rust，端口:50052）
+| RPC | 说明 |
+|-----|------|
+| `RouteRequest` | 根据 service_name 路由到后端微服务 |
+| `HttpToGrpc` | HTTP/1.1 协议转换为 gRPC 调用 |
+| `WebSocketToGrpc` | WebSocket 长连接转 gRPC 双向流 |
+| `RateLimit` | 令牌桶限流，支持接口级别控制 |
+| `Authenticate` | JWT Token 鉴权，RBAC 权限验证 |
+| `CircuitBreaker` | 熔断保护，防止雪崩效应 |
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `Register` | username, password, email | user_id, token, created_at | 用户注册 |
-| `Login` | username, password | token, user_info, expires_at | 用户登录 |
-| `Logout` | token, device_id | success, message | 注销登录 |
-| `GetUserInfo` | user_id | user_id, username, avatar, email, permission, created_at | 获取用户信息 |
-| `UpdateUserInfo` | user_id, username, avatar, email | success, message | 更新用户信息 |
-| `ListDevices` | user_id | devices[] (device_id, device_name, last_login_ip, last_login_time) | 获取登录设备列表 |
-| `RemoveDevice` | user_id, device_id | success, message | 移除登录设备 |
-| `VerifyToken` | token | valid, user_id, permissions | Token 验证 |
+**核心能力**：
+- 协议转换：HTTP/WebSocket → gRPC
+- 动态路由：从注册中心获取服务地址
+- 限流熔断：保护后端服务
+- 请求转发：负载均衡策略
 
-### ArticleService — 文章服务（Go，端口:50053）
+### 2. RegistryCenter — 注册中心（✅ 核心，端口:50052）
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `CreateArticle` | title, content, category_id, tags[], author_id | article_id, created_at | 创建文章 |
-| `GetArticle` | article_id | article_id, title, content, category, tags[], author, created_at, updated_at, view_count | 获取文章详情 |
-| `UpdateArticle` | article_id, title, content, category_id, tags[] | success, updated_at | 更新文章 |
-| `DeleteArticle` | article_id | success, message | 删除文章 |
-| `ListArticles` | page, page_size, category_id, tag_id | articles[], total, page, page_size | 文章列表（分页） |
-| `GetCategories` | Empty | categories[] (category_id, name, article_count) | 获取分类列表 |
-| `CreateCategory` | name, description | category_id, created_at | 创建分类 |
-| `GetTags` | Empty | tags[] (tag_id, name, article_count) | 获取标签列表 |
+服务注册与发现，动态路由和负载均衡的基础。
 
-### BlogService — 博客服务（Go，端口:50054）
+| RPC | 说明 |
+|-----|------|
+| `Register` | 服务实例注册（名称、地址、元数据） |
+| `Deregister` | 服务实例注销 |
+| `Heartbeat` | 心跳保活，超时自动摘除 |
+| `Discover` | 服务发现，获取可用实例列表 |
+| `Watch` | 服务变更监听（服务端流） |
+| `GetServiceList` | 获取所有已注册服务 |
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `CreatePost` | title, content, author_id, tags[] | post_id, created_at | 创建博客文章 |
-| `GetPost` | post_id | post_id, title, content, author, tags[], created_at, updated_at, like_count, comment_count | 获取博客详情 |
-| `UpdatePost` | post_id, title, content, tags[] | success, updated_at | 更新博客 |
-| `DeletePost` | post_id | success, message | 删除博客 |
-| `ListPosts` | page, page_size, tag_id, author_id | posts[], total, page, page_size | 博客列表（分页） |
-| `AddComment` | post_id, author_id, content | comment_id, created_at | 添加评论 |
-| `ListComments` | post_id, page, page_size | comments[] (comment_id, author, content, created_at), total | 评论列表 |
-| `DeleteComment` | comment_id, author_id | success, message | 删除评论 |
-| `LikePost` | post_id, user_id | success, like_count | 点赞博客 |
-| `UnlikePost` | post_id, user_id | success, like_count | 取消点赞 |
-| `GetRecommendations` | user_id, page, page_size | posts[], total | 博客推荐 |
+**核心能力**：
+- 服务注册：启动时自动注册
+- 健康检查：心跳超时自动摘除
+- 动态路由：实时获取可用实例
+- 负载均衡：支持轮询/随机/一致性哈希
 
-### ImageService — 图片服务（Rust，端口:50055）
+### 3. ConfigCenter — 配置中心（⚠️ 可选，端口:50053）
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `UploadImage` | stream<file_name, content, chunk_index, total_chunks> | image_id, url, thumbnail_url, size_bytes, format | 图片上传（客户端流） |
-| `GetImage` | image_id | image_id, url, thumbnail_url, format, width, height, size_bytes, created_at | 获取图片信息 |
-| `DeleteImage` | image_id | success, message | 删除图片 |
-| `ListImages` | user_id, page, page_size | images[], total | 图片列表 |
-| `ProcessImage` | image_id, operations[] (resize/crop/rotate/format_convert) | image_id, url, thumbnail_url | 图片处理 |
-| `GenerateThumbnail` | image_id, width, height | thumbnail_url | 生成缩略图 |
+统一配置管理，支持配置热更新。
 
-### VideoService — 视频服务（Rust，端口:50056）
+| RPC | 说明 |
+|-----|------|
+| `GetConfig` | 获取配置项 |
+| `SetConfig` | 设置配置项 |
+| `DeleteConfig` | 删除配置项 |
+| `WatchConfig` | 配置变更监听（服务端流） |
+| `GetConfigVersion` | 获取配置版本历史 |
+| `RollbackConfig` | 配置回滚到指定版本 |
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `UploadVideo` | stream<file_name, content, chunk_index, total_chunks> | video_id, status (uploading/processing/ready) | 视频上传（客户端流） |
-| `GetVideoInfo` | video_id | video_id, title, url, duration, format, resolution, size_bytes, status, created_at | 获取视频信息 |
-| `DeleteVideo` | video_id | success, message | 删除视频 |
-| `ListVideos` | user_id, page, page_size | videos[], total | 视频列表 |
-| `StartTranscoding` | video_id, target_formats[], resolutions[] | job_id, status | 启动转码任务 |
-| `GetTranscodingStatus` | job_id | job_id, status, progress, output_formats[] | 查询转码进度 |
-| `GetStreamUrl` | video_id, format, resolution | stream_url, expires_at | 获取流媒体播放地址 |
-| `GetVideoChunk` | video_id, chunk_index, format, resolution | stream<content, chunk_index, total_chunks> | 获取视频切片（服务端流） |
+**核心能力**：
+- 配置存储：Key-Value 结构
+- 动态下发：配置变更实时推送
+- 版本管理：支持回滚
+- 环境隔离：开发/测试/生产环境
 
-### SearchService — 搜索服务（Go，端口:50057）
+### 4. TracingService — 链路追踪（⚠️ 可选，端口:50054）
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `Search` | query, type (article/blog/image/video/all), page, page_size, filters | results[], total, page, page_size, elapsed_ms | 全文搜索 |
-| `IndexDocument` | document_id, type, title, content, tags[], metadata | success, indexed_at | 索引文档 |
-| `RemoveIndex` | document_id, type | success, message | 移除索引 |
-| `RebuildIndex` | type (article/blog/image/video/all) | job_id, status | 重建索引 |
-| `GetSearchSuggestions` | prefix, type, limit | suggestions[] (text, count) | 搜索建议 |
-| `GetTrendingSearches` | limit | trending[] (query, count) | 热门搜索 |
+请求全链路追踪，帮助排查性能瓶颈。
 
-### FrontendService — 前端服务
+| RPC | 说明 |
+|-----|------|
+| `ReportSpan` | 上报 Span 数据 |
+| `QueryTrace` | 查询调用链 |
+| `GetServiceMap` | 获取服务依赖拓扑图 |
+| `GetSlowTraces` | 获取慢调用链 |
+| `GetErrorTraces` | 获取错误调用链 |
 
-| RPC | 请求 | 响应 | 说明 |
-|-----|------|------|------|
-| `GetPageData` | page_name, params, pagination | page_name, data, pagination | 获取页面渲染数据 |
-| `UserAction` | action_type, action_data, session_id | success, result, message | 用户交互操作 |
-| `SubscribeEvents` | user_id, event_types[] | stream<event_type, data, timestamp> | 实时事件推送（服务端流） |
-| `UploadFile` | stream<file_name, content, chunk_index, total_chunks, file_id> | file_id, url, size_bytes | 文件上传（客户端流） |
-| `DownloadFile` | file_id, file_name | stream<file_name, content, chunk_index, total_chunks, file_id> | 文件下载（服务端流） |
+**核心能力**：
+- Span 收集：跨服务调用链追踪
+- 调用链查询：按 TraceID 查询
+- 服务拓扑：自动生成依赖图
+- 性能分析：慢调用/错误调用定位
+
+### 5. MonitorService — 监控告警（⚠️ 可选，端口:50055）
+
+系统监控和告警通知。
+
+| RPC | 说明 |
+|-----|------|
+| `ReportMetric` | 上报指标数据 |
+| `QueryMetric` | 查询指标数据 |
+| `SetAlertRule` | 设置告警规则 |
+| `GetAlerts` | 获取告警列表 |
+| `AcknowledgeAlert` | 确认告警 |
+
+**核心能力**：
+- 指标采集：CPU/内存/QPS/延迟
+- 告警规则：阈值/趋势/同比
+- 通知推送：邮件/短信/Webhook
+- 可视化：Grafana 面板集成
+
+### 6. BusinessService — 业务微服务模板（✅ 核心，端口:50056+）
+
+实际业务逻辑的承载者，每个业务领域独立部署。
+
+| 业务领域 | 建议语言 | 端口 | 说明 |
+|----------|----------|------|------|
+| UserService | C++/Rust | 50056 | 用户注册登录、权限管理 |
+| ArticleService | C++/Go | 50057 | 文章 CRUD、分类标签 |
+| BlogService | C++/Go | 50058 | 博客管理、评论点赞 |
+| ImageService | C++/Rust | 50059 | 图片上传处理、缩略图 |
+| VideoService | C++/Rust | 50060 | 视频上传转码、流媒体 |
+| SearchService | C++/Go | 50061 | 全文搜索、索引管理 |
 
 ---
 
 ## 🧠 架构设计
 
-### 目标架构（微服务）
+### 完整架构图
 
 ```
                     ┌──────────────────────────────────────┐
-                    │            Vue 前端                   │ (2核2g 服务器)
+                    │            Vue 前端                   │
                     │         (gRPC-Web)                   │
                     └──────────────┬───────────────────────┘
-                                   │ gRPC-Web (通过 Nginx 代理)
+                                   │ gRPC-Web
                                    ▼
                     ┌──────────────────────────────────────┐
                     │         GRPCGateway (C++)             │
@@ -341,298 +276,126 @@ npm run dev
               ┌────────┘    │    │    │    │    │    └────────┐
               ▼             ▼    ▼    ▼    ▼    ▼             ▼
      ┌────────────┐  ┌────────┐ ┌──────┐ ┌──────┐ ┌──────────┐
-     │ UserService│  │Article │ │Blog  │ │Image │ │Video     │
-     │  (Rust)    │  │ (Go)   │ │(Go)  │ │(Rust)│ │(Rust)    │
-     │  :50052    │  │:50053  │ │:50054│ │:50055│ │:50056    │
+     │  Registry  │  │ Config │ │Tracing│ │Monitor│ │Business  │
+     │  Center    │  │ Center │ │Service│ │Service│ │ Service  │
+     │  :50052    │  │:50053  │ │:50054│ │:50055│ │ :50056+  │
      └────────────┘  └────────┘ └──────┘ └──────┘ └──────────┘
-              │         │         │        │        │
-              └─────────┴─────────┴────────┴────────┴──────────┐
-                                                               │
-                                                               ▼
-                                                    ┌──────────────────┐
-                                                    │ SearchService   │
-                                                    │    (Go)         │
-                                                    │    :50057       │
-                                                    └──────────────────┘
-                                                               │
-                                                               ▼
-                                                    ┌──────────────────┐
-                                                    │  Elasticsearch   │
-                                                    │   (搜索引擎)      │
-                                                    └──────────────────┘
+           │              │         │        │          │
+           └──────────────┴─────────┴────────┴──────────┘
+                                │
+                                ▼
+                    ┌──────────────────────┐
+                    │   MySQL + Redis       │
+                    │   (数据存储/缓存)      │
+                    └──────────────────────┘
 ```
 
-### 微服务间调用关系
+### 请求完整流程
 
 ```
-用户注册流程：
-  Vue前端 → gRPC-Web → GRPCGateway → UserService(Rust) → MySQL
-  → 返回 token → GRPCGateway → Vue前端
-
-发布文章流程：
-  Vue前端 → gRPC-Web → GRPCGateway → ArticleService(Go) → MySQL
-  → ArticleService 调用 SearchService 更新索引
-  → 返回文章ID → GRPCGateway → Vue前端
-
-上传图片流程：
-  Vue前端 → gRPC-Web → GRPCGateway → ImageService(Rust)
-  → 生成缩略图 → 存储到对象存储
-  → 返回图片URL → GRPCGateway → Vue前端
-
-搜索流程：
-  Vue前端 → gRPC-Web → GRPCGateway → SearchService(Go)
-  → 查询 Elasticsearch → 聚合结果
-  → 返回搜索结果 → GRPCGateway → Vue前端
+用户请求 → Vue前端 → gRPC-Web → GRPCGateway
+  → Gateway 调用 RegistryCenter 发现服务地址
+  → Gateway 调用 ConfigCenter 获取路由规则
+  → Gateway 鉴权验证 → 转发到 BusinessService
+  → BusinessService 处理业务 → 返回结果
+  → TracingService 记录调用链
+  → MonitorService 采集指标
+  → 返回响应 → Vue前端
 ```
 
-### 多语言技术选型
-
-| 微服务 | 语言 | 选型理由 |
-|--------|------|----------|
-| GRPCGateway | C++ | 高性能网关，协议转换核心 |
-| UserService | Rust | 内存安全，用户敏感数据处理 |
-| ArticleService | Go | 快速开发，CRUD 密集型 |
-| BlogService | Go | 与文章服务类似，统一技术栈 |
-| ImageService | Rust | 图片处理性能要求高，内存安全 |
-| VideoService | Rust | 视频转码 CPU 密集型，性能优先 |
-| SearchService | Go | 搜索聚合逻辑，并发处理强 |
-
-### 部署架构
+### 服务注册发现流程
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ 服务器 A (5核10g)                                            │
-│  ├── GRPCGateway     (C++,   端口:50051)                     │
-│  ├── UserService     (Rust,  端口:50052)                     │
-│  ├── ArticleService  (Go,    端口:50053)                     │
-│  ├── BlogService     (Go,    端口:50054)                     │
-│  ├── ImageService    (Rust,  端口:50055)                     │
-│  ├── VideoService    (Rust,  端口:50056)                     │
-│  ├── SearchService   (Go,    端口:50057)                     │
-│  └── MySQL + Elasticsearch                                   │
-└──────────────────┬───────────────────────────────────────────┘
-                   │ gRPC 内部通信
-                   ▼
-┌──────────────────────────────────────────────────────────────┐
-│ 服务器 B (2核2g)                                             │
-│  └── Vue 前端 + Nginx (gRPC-Web 代理)                        │
-└──────────────────────────────────────────────────────────────┘
+BusinessService 启动
+  → 向 RegistryCenter 注册 (服务名:地址:端口)
+  → 发送心跳保活 (每5秒)
+  → RegistryCenter 更新服务列表
+
+GRPCGateway 收到请求
+  → 向 RegistryCenter 查询服务地址
+  → RegistryCenter 返回可用实例列表
+  → Gateway 负载均衡选择实例
+  → 转发请求
 ```
 
-### Proto 独立仓库设计
+### 配置中心工作流程
 
 ```
-proto-repo/                    # 独立 Git 仓库
-├── source/                    # Proto 源文件
-│   ├── common/                # 公共类型（被所有服务引用）
-│   │   ├── common.proto       # Empty、PageRequest 等通用消息
-│   │   └── error_code.proto   # 全局错误码枚举
-│   ├── gateway/               # 网关接口
-│   │   └── gateway_service.proto
-│   ├── user/                  # 用户服务接口
-│   │   └── user_service.proto
-│   ├── article/               # 文章服务接口
-│   │   └── article_service.proto
-│   ├── blog/                  # 博客服务接口
-│   │   └── blog_service.proto
-│   ├── image/                 # 图片服务接口
-│   │   └── image_service.proto
-│   ├── video/                 # 视频服务接口
-│   │   └── video_service.proto
-│   ├── search/                # 搜索服务接口
-│   │   └── search_service.proto
-│   └── frontend/              # 前端接口
-│       └── frontend_service.proto
-└── build/                     # 编译输出
-    ├── lib/                   # 编译后的库文件
-    ├── bin/                   # 可执行文件
-    └── generated/             # 生成的 .pb.h / .pb.cc
+ConfigCenter 启动
+  → 从 MySQL/Redis 加载配置
+  → 提供 GetConfig/WatchConfig 接口
 
-编译为静态库 librpc_protos.a
-C++ 微服务通过 find_package 引用
-Rust 微服务通过 prost + tonic 直接编译 proto
-Go 微服务通过 protoc-gen-go 生成代码
+BusinessService 启动
+  → 调用 GetConfig 获取初始配置
+  → 调用 WatchConfig 监听配置变更
+  → 配置变更时实时更新
+
+GRPCGateway 路由
+  → 从 ConfigCenter 获取路由规则
+  → 动态调整路由策略
 ```
 
-**优势**：
-- **类型安全**：所有微服务使用同一份 proto 定义，接口变更编译期即可发现
-- **版本控制**：proto 版本变更可追溯，支持多版本共存
-- **语言无关**：可生成 C++/Rust/Go/Java/Python 等代码，支持多语言微服务
-- **编译隔离**：修改 proto 只需重新编译依赖库，无需修改业务代码
-- **可移植性**：新微服务直接引用 proto 库，开箱即用
+### 链路追踪流程
 
-### Git Submodule 管理
+```
+请求到达 GRPCGateway
+  → 生成 TraceID + SpanID
+  → 将 TraceContext 传递给下游
 
-```bash
-# 总仓库添加子仓库
-git submodule add <proto-repo-url> proto
-git submodule add <gateway-repo-url> GRPCGateway
-git submodule add <user-repo-url> UserService
-git submodule add <article-repo-url> ArticleService
-git submodule add <blog-repo-url> BlogService
-git submodule add <image-repo-url> ImageService
-git submodule add <video-repo-url> VideoService
-git submodule add <search-repo-url> SearchService
-git submodule add <vue-repo-url> vue
+BusinessService 处理
+  → 接收 TraceContext
+  → 创建子 Span
+  → 处理完成后上报 Span
 
-# 克隆总仓库时拉取所有子仓库
-git clone --recursive <webserver-repo-url>
+TracingService 收集
+  → 接收所有 Span 数据
+  → 按 TraceID 聚合调用链
+  → 提供查询接口
+```
 
-# 更新所有子仓库到最新
-git submodule update --remote --recursive
+### 监控告警流程
+
+```
+MonitorService 启动
+  → 定义告警规则 (QPS>1000/延迟>500ms)
+  → 启动指标采集
+
+各微服务定时上报
+  → ReportMetric (CPU/内存/QPS/延迟)
+  → MonitorService 存储指标
+
+触发告警
+  → MonitorService 检测到异常
+  → 匹配告警规则
+  → 发送通知 (邮件/短信/Webhook)
 ```
 
 ---
 
 ## ⚙️ 配置说明
 
+### 服务器端口
+
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| Vue 前端 | 60907 | 前端开发服务器 |
+| GRPCGateway | 50051 | 网关（对外统一入口） |
+| RegistryCenter | 50052 | 注册中心 |
+| ConfigCenter | 50053 | 配置中心 |
+| TracingService | 50054 | 链路追踪 |
+| MonitorService | 50055 | 监控告警 |
+| BusinessService | 50056+ | 业务微服务 |
+
 ### 数据库配置
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| 主机 (Windows) | `localhost` | 本地开发 |
-| 主机 (Linux) | `192.168.0.52` | 远程部署 |
-| 端口 | `3306` | MySQL 端口 |
-| 用户 | `web_server` | 数据库用户名 |
-| 密码 | `123456` | 数据库密码 |
-| 数据库 | `web_server` | 数据库名称 |
-
-### 服务器端口
-
-| 服务 | 语言 | 端口 | 说明 |
-|------|------|------|------|
-| HTTP 服务器（归档） | C++ | `60906` | 原单体后端 API |
-| Vue 开发服务器 | JavaScript | `60907` | 前端开发 |
-| GRPCGateway | C++ | `50051` | gRPC 网关 |
-| UserService | Rust | `50052` | 用户服务 |
-| ArticleService | Go | `50053` | 文章服务 |
-| BlogService | Go | `50054` | 博客服务 |
-| ImageService | Rust | `50055` | 图片服务 |
-| VideoService | Rust | `50056` | 视频服务 |
-| SearchService | Go | `50057` | 搜索服务 |
-
-### 数据库初始化
-
-```sql
-CREATE DATABASE IF NOT EXISTS web_server;
-USE web_server;
-
--- 用户表
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100),
-    permission INT DEFAULT 1,
-    avatar VARCHAR(255) DEFAULT '',
-    login_count INT DEFAULT 0,
-    last_login_time DATETIME,
-    last_login_ip VARCHAR(45),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- 文章表
-CREATE TABLE IF NOT EXISTS articles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    content TEXT,
-    category_id INT,
-    author_id INT NOT NULL,
-    view_count INT DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (author_id) REFERENCES users(id)
-);
-
--- 分类表
-CREATE TABLE IF NOT EXISTS categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    description VARCHAR(200),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- 标签表
-CREATE TABLE IF NOT EXISTS tags (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- 文章-标签关联表
-CREATE TABLE IF NOT EXISTS article_tags (
-    article_id INT NOT NULL,
-    tag_id INT NOT NULL,
-    PRIMARY KEY (article_id, tag_id),
-    FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-);
-
--- 博客表
-CREATE TABLE IF NOT EXISTS blog_posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    content TEXT,
-    author_id INT NOT NULL,
-    like_count INT DEFAULT 0,
-    comment_count INT DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (author_id) REFERENCES users(id)
-);
-
--- 评论表
-CREATE TABLE IF NOT EXISTS comments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    author_id INT NOT NULL,
-    content TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (author_id) REFERENCES users(id)
-);
-
--- 点赞表
-CREATE TABLE IF NOT EXISTS likes (
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (post_id, user_id),
-    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 图片表
-CREATE TABLE IF NOT EXISTS images (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    filename VARCHAR(255) NOT NULL,
-    url VARCHAR(500) NOT NULL,
-    thumbnail_url VARCHAR(500),
-    format VARCHAR(10),
-    width INT,
-    height INT,
-    size_bytes BIGINT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 视频表
-CREATE TABLE IF NOT EXISTS videos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(200),
-    filename VARCHAR(255) NOT NULL,
-    url VARCHAR(500),
-    duration INT,
-    format VARCHAR(10),
-    resolution VARCHAR(20),
-    size_bytes BIGINT,
-    status ENUM('uploading', 'processing', 'ready', 'failed') DEFAULT 'uploading',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-```
+| MySQL 主机 | localhost | 数据库地址 |
+| MySQL 端口 | 3306 | 数据库端口 |
+| MySQL 用户 | web_server | 数据库用户 |
+| MySQL 密码 | 123456 | 数据库密码 |
+| MySQL 数据库 | web_server | 数据库名称 |
+| Redis 地址 | localhost:6379 | 缓存地址 |
 
 ---
 
@@ -640,56 +403,28 @@ CREATE TABLE IF NOT EXISTS videos (
 
 ### 阶段一：单体架构 ✅ 已归档
 - [x] C++ 原生 Socket HTTP 服务器
-- [x] HTTP 协议手动解析
-- [x] 多线程并发处理
-- [x] MySQL 数据库直连
-- [x] Vue 3 前端界面
-- [x] 用户认证系统（Token）
-- [x] 异步任务处理
+- [x] HTTP 协议手动解析、多线程并发
+- [x] MySQL 数据库直连、Vue 3 前端
 - [x] 归档仓库：https://github.com/jyoushitou/WebSever_cpp.git
 
-### 阶段二：微服务架构 🔄 进行中
+### 阶段二：gRPC 框架 🔄 进行中
 - [x] Proto 独立仓库搭建
-- [ ] GRPCGateway 网关服务实现（C++）
-- [ ] UserService 用户服务实现（Rust）
-- [ ] ArticleService 文章服务实现（Go）
-- [ ] BlogService 博客服务实现（Go）
-- [ ] ImageService 图片服务实现（Rust）
-- [ ] VideoService 视频服务实现（Rust）
-- [ ] SearchService 搜索服务实现（Go）
+- [ ] GRPCGateway 网关（C++）
+- [ ] RegistryCenter 注册中心（C++）
+- [ ] ConfigCenter 配置中心（C++）
+- [ ] TracingService 链路追踪（C++）
+- [ ] MonitorService 监控告警（C++）
+- [ ] BusinessService 业务微服务模板（C++）
 - [ ] Vue 前端 gRPC-Web 接入
-- [ ] 服务注册与发现（Consul/etcd）
-- [ ] 配置中心
 
-### 阶段三：容器化部署 📋 规划中
-- [ ] Docker 容器化
-- [ ] Docker Compose 编排
-- [ ] Kubernetes 部署
-- [ ] CI/CD 流水线
-- [ ] 监控告警（Prometheus + Grafana）
-- [ ] 链路追踪（Jaeger）
-
----
-
-## 🤝 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+### 阶段三：容器化 📋 规划中
+- [ ] Docker 容器化、Docker Compose 编排
+- [ ] Kubernetes 部署、CI/CD 流水线
+- [ ] Prometheus + Grafana 监控
 
 ---
 
 ## 📬 联系方式
 
-- 项目维护者：[jyoushitou]
-- 邮箱：[xzt98948364@outlook.com]
 - 项目地址：[https://github.com/jyoushitou/WebServer](https://github.com/jyoushitou/WebServer)
 - 归档仓库：[https://github.com/jyoushitou/WebSever_cpp.git](https://github.com/jyoushitou/WebSever_cpp.git)
