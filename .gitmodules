@@ -16,3 +16,6 @@
 [submodule "proto"]
 	path = proto
 	url = https://github.com/jyoushitou/WebService_cpp_proto.git
+[submodule "UserService"]
+	path = UserService
+	url = https://github.com/jyoushitou/WebService_Rust_UserService.git
